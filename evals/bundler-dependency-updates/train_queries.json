@@ -1,0 +1,15 @@
+[
+  { "query": "Gemfile の gem を全部最新に上げて、テストが通るところまで面倒みて", "should_trigger": true },
+  { "query": "bundle update してほしい", "should_trigger": true },
+  { "query": "this rails app hasn't been touched in 18 months, get the gems current and make sure the specs still pass", "should_trigger": true },
+  { "query": "we run everything through docker compose here — can you get the gems up to date? bundle install on my laptop doesn't even work", "should_trigger": true },
+  { "query": "bundle outdated says rails is 2 majors behind. can you handle the upgrade", "should_trigger": true },
+  { "query": "after I updated the gems yesterday half the specs blow up with NoMethodError. help me sort it out", "should_trigger": true },
+
+  { "query": "npm の依存を最新にして", "should_trigger": false },
+  { "query": "add the sidekiq gem to this project", "should_trigger": false },
+  { "query": "bundle install が失敗する。nokogiri がビルドできない", "should_trigger": false },
+  { "query": "why is our docker compose build so slow?", "should_trigger": false },
+  { "query": "release a new version of this gem to rubygems", "should_trigger": false },
+  { "query": "convert this Gemfile to pull from our private gem server", "should_trigger": false }
+]

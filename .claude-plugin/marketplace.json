@@ -1,7 +1,8 @@
 {
   "name": "matsubo-agent-skills",
   "owner": {
-    "name": "Yuki Matsukura"
+    "name": "Yuki Matsukura",
+    "url": "https://github.com/matsubo"
   },
   "metadata": {
     "description": "Yuki Matsukura's personal agent skills",
@@ -12,10 +13,30 @@
       "name": "matsubo",
       "source": "./",
       "version": "1.0.0",
-      "description": "Personal workflow skills: dependency updates and release automation. Skills are namespaced as /matsubo:<skill>.",
+      "description": "Personal workflow skills: dependency updates for npm and Bundler, and release automation. Skills are namespaced as /matsubo:<skill>.",
+      "author": {
+        "name": "Yuki Matsukura"
+      },
+      "homepage": "https://github.com/matsubo/agent-skills",
+      "repository": "https://github.com/matsubo/agent-skills",
+      "license": "MIT",
+      "keywords": [
+        "npm",
+        "bun",
+        "bundler",
+        "ruby",
+        "gems",
+        "dependencies",
+        "npm-check-updates",
+        "bundle-update",
+        "release",
+        "versioning",
+        "git"
+      ],
       "strict": false,
       "skills": [
-        "./skills/ncu",
+        "./skills/npm-dependency-updates",
+        "./skills/bundler-dependency-updates",
         "./skills/release"
       ]
     }

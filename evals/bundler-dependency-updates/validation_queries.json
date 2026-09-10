@@ -1,0 +1,11 @@
+[
+  { "query": "ruby のライブラリを全部アップデートして、壊れたところを直して", "should_trigger": true },
+  { "query": "get us onto the latest rails, we're still on 6.1", "should_trigger": true },
+  { "query": "the security team wants every gem on a supported version before friday. it's a compose setup", "should_trigger": true },
+  { "query": "run bundle update and fix the fallout", "should_trigger": true },
+
+  { "query": "upgrade the Python packages in requirements.txt to latest", "should_trigger": false },
+  { "query": "write a rake task that prints the gem versions we depend on", "should_trigger": false },
+  { "query": "CI fails with 'Your bundle is locked to rails 7.0.4 but that version could not be found'", "should_trigger": false },
+  { "query": "package.json を最新にして", "should_trigger": false }
+]

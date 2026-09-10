@@ -1,0 +1,11 @@
+[
+  { "query": "can you refresh package.json to latest and fix whatever explodes", "should_trigger": true },
+  { "query": "npm-check-updates -u then sort out the fallout", "should_trigger": true },
+  { "query": "we're 3 majors behind on react and typescript. update them and fix the breaking changes", "should_trigger": true },
+  { "query": "デプロイ前に依存関係のアップデートをやっておきたい。TypeScript のビルドが通るところまで", "should_trigger": true },
+
+  { "query": "upgrade the Python packages in requirements.txt to latest", "should_trigger": false },
+  { "query": "why is bun install so slow in CI?", "should_trigger": false },
+  { "query": "write a script that reads package.json and prints the dependency tree", "should_trigger": false },
+  { "query": "release a new patch version", "should_trigger": false }
+]
