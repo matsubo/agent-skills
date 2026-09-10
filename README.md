@@ -15,6 +15,55 @@ Skills are namespaced under `matsubo`, so they are invoked as `/matsubo:<skill>`
 /plugin install matsubo@matsubo-agent-skills
 ```
 
+## Staying up to date
+
+**Auto-update is off by default here.** Claude Code enables it for Anthropic's own
+marketplaces, but third-party and local marketplaces start with it disabled — which is why an
+installed copy can sit on an old version indefinitely without ever saying so.
+
+Turn it on either way:
+
+- `/plugin` → **Marketplaces** → `matsubo-agent-skills` → **Enable auto-update**
+- or set it directly in `~/.claude/settings.json`:
+
+  ```json
+  {
+    "extraKnownMarketplaces": {
+      "matsubo-agent-skills": {
+        "source": { "source": "github", "repo": "matsubo/agent-skills" },
+        "autoUpdate": true
+      }
+    }
+  }
+  ```
+
+Or update by hand, from the shell, with no session open:
+
+```
+claude plugin marketplace update matsubo-agent-skills   # refresh the catalogue
+claude plugin update matsubo@matsubo-agent-skills       # update the plugin itself
+```
+
+In a session, `/plugin marketplace update matsubo-agent-skills` refreshes the catalogue and
+`/plugin` manages the install itself; either way finish with `/reload-plugins`.
+
+Four things worth knowing, because each one can leave you running code you did not expect:
+
+- **No `claude` subcommand toggles auto-update.** `claude plugin marketplace` offers only
+  `add`, `list`, `remove` and `update`; the toggle lives in the `/plugin` UI or in
+  `settings.json` as above. The shell commands update *now*, they do not change the policy.
+- **Auto-update never changes the session you are in.** It runs after startup with a random
+  delay of up to ten minutes, so the running session keeps whatever it loaded at launch. You
+  get a notification to run `/reload-plugins`, or the new version loads next launch.
+- **An update is not applied until `/reload-plugins` or a restart.** `claude plugin update`
+  says so itself: *restart required to apply*.
+- **Updates only reach users when `version` is bumped** in `.claude-plugin/marketplace.json`.
+  Pushing to `main` is not enough — which is what the release workflow below is for.
+
+To turn automatic updates off again, unset `autoUpdate`, or set `DISABLE_AUTOUPDATER` to
+disable them for Claude Code and plugins together. `FORCE_AUTOUPDATE_PLUGINS=1` alongside it
+keeps plugins updating while Claude Code itself does not.
+
 ## Skills
 
 | Skill | Invoke | Description |
