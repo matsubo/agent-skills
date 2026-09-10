@@ -31,7 +31,7 @@ skills/
   <skill>/SKILL.md          # one directory per skill
 evals/
   run-trigger-eval.sh       # measures how reliably a description triggers
-  fixture/                  # throwaway polyglot project each eval query runs against
+  fixture/<ecosystem>/      # throwaway project each eval query runs against
   <skill>/*_queries.json    # labelled prompts, split into train and validation sets
 ```
 
@@ -82,11 +82,20 @@ Tune the description against the train set only, then check the validation set t
 change generalized rather than overfitting. `RUNS`, `THRESHOLD`, `TIMEOUT` and `MODEL` are
 environment variables.
 
-Each query runs against a fresh copy of `evals/fixture/`, a small project carrying a
-`package.json`, a `Gemfile` and a `requirements.txt` at once. An empty directory does not
-work — the agent spends the run establishing that there is nothing to act on and never
-reaches the task — and the repository itself would bias the result. The mixed ecosystems are
-what make the cross-ecosystem negatives answerable rather than nonsense.
+Each query runs against a fresh copy of `evals/fixture/<ecosystem>/`, chosen from the first
+segment of the skill name, so `npm-dependency-updates` runs against `evals/fixture/npm`. Pass
+a third argument to override it. Two constraints on that fixture were measured rather than
+assumed:
+
+- An empty directory scores 0 for every query. The agent spends the run establishing that
+  there is no project to act on and never reaches the task.
+- A single fixture holding several ecosystems at once also scores 0 on generic prompts such
+  as "bring the deps up to date", because the agent stops to work out which ecosystem is
+  meant. Hence one single-ecosystem fixture per skill.
+
+Model behaviour is nondeterministic, so a single run tells you nothing: the same prompt
+triggered on one run and not the next during development. Keep `RUNS` at 3 or more and read
+the rate, not the individual outcome.
 
 ## Publishing
 

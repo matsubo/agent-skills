@@ -3,6 +3,10 @@
 #
 #   ./evals/run-trigger-eval.sh evals/npm-dependency-updates/train_queries.json npm-dependency-updates
 #
+# The third argument is the fixture project each query runs against. It defaults to
+# evals/fixture/<first segment of the skill name>, so npm-dependency-updates uses
+# evals/fixture/npm.
+#
 # A should_trigger query passes when its trigger rate is above THRESHOLD; a
 # should_not_trigger query passes when it is below. Results go to stdout as JSON.
 #
@@ -18,20 +22,24 @@ TIMEOUT="${TIMEOUT:-180}"
 MODEL="${MODEL:-}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+FIXTURE="${3:-$REPO_ROOT/evals/fixture/${SKILL%%-*}}"
 
 for cmd in claude jq; do
   command -v "$cmd" >/dev/null || { echo "$cmd is required but not installed" >&2; exit 1; }
 done
 [ -f "$QUERIES_FILE" ] || { echo "No such queries file: $QUERIES_FILE" >&2; exit 1; }
+[ -d "$FIXTURE" ] || { echo "No such fixture directory: $FIXTURE" >&2; exit 1; }
 
 # Run each query against a throwaway copy of the fixture project, not against this
-# repository. An empty directory does not work: the agent spends the run establishing that
-# there is no project to act on and never reaches the task, so every query scores 0.
-# The fixture is deliberately polyglot (package.json, Gemfile, requirements.txt) so that
-# near-miss queries aimed at another ecosystem are plausible rather than unanswerable.
+# repository. Two things were measured rather than assumed here:
+#   - An empty directory scores 0 for everything. The agent spends the run establishing
+#     that there is no project to act on and never reaches the task.
+#   - One fixture holding several ecosystems at once also scores 0 on generic prompts
+#     ("bring the deps up to date"), because the agent stops to work out which ecosystem
+#     is meant. Hence one single-ecosystem fixture per skill.
 WORKDIR="$(mktemp -d)"
 trap 'rm -rf "$WORKDIR"' EXIT
-cp -R "$REPO_ROOT/evals/fixture/." "$WORKDIR/"
+cp -R "$FIXTURE/." "$WORKDIR/"
 
 # Exits 0 when the skill was invoked, 1 otherwise. `.input.skill` is namespaced
 # for plugin skills (matsubo:npm-dependency-updates), so match on the suffix.
