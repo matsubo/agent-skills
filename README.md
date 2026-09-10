@@ -24,6 +24,52 @@ Skills are namespaced under `matsubo`, so they are invoked as `/matsubo:<skill>`
 | `github-actions-workflows` | model-invoked, or `/matsubo:github-actions-workflows` | Author `.github/workflows/` using action versions looked up from the API, never recalled. Bundles a version-lookup script. |
 | `release` | `/matsubo:release [patch\|minor\|major]` | Version bump → release notes → commit → tag → push (with approval) → GitHub Release. |
 
+## Safety
+
+A skill is not a library. It is plain-text instructions that your agent reads and then acts
+on — with your credentials, in your repository. Installing one is closer to running a shell
+script than to adding a dependency, so the useful question is not "is this safe?" but "what
+is enforced, and what still needs my eyes?"
+
+**Enforced automatically on every push and pull request.** This is what the badge above
+reports; the full check list is under [Audit](#audit).
+
+- No instruction to run `rm -rf`, pipe a remote script into a shell or interpreter, force
+  push, escalate with `sudo`, or disable the agent's permission prompts.
+- No text that a reviewer cannot see but a model still reads: HTML comments, zero-width
+  characters, bidirectional overrides.
+- No credential literals, plus a [gitleaks](https://github.com/gitleaks/gitleaks) scan over
+  the full history.
+- Frontmatter conforms to the [specification](https://agentskills.io/specification), and
+  `marketplace.json` cannot drift out of step with `skills/`.
+
+**True of the skills here today**, and checkable in one `grep` each:
+
+- Only `release` pushes at all, and it stops and asks first — see Step 5 of
+  `skills/release/SKILL.md`. The dependency-update skills commit; they never push.
+- The only network access from a bundled script is read-only `GET`s to `api.github.com`.
+
+**What none of that proves.** The audit is a deny list of known-bad patterns, not a proof of
+good behaviour, and it is worth being precise about the gap:
+
+- A harmful instruction written in plain prose passes every pattern. "Delete the branch and
+  make the remote match" contains nothing to grep for.
+- It checks the text, not the outcome. These skills exist to run `bundle update`,
+  `npm-check-updates -u` and `git commit` — commands that change your project by design.
+- It says nothing about the third-party tools the skills invoke: Bundler, ncu, `gh`.
+- The trigger evals are not part of CI, so a description can still fire on a prompt you did
+  not mean it to.
+
+**So verify it yourself.** Each skill is one Markdown file of under 150 lines, and
+`github-actions-workflows` bundles a shell script besides. Reading the one you are about to
+install takes a couple of minutes and is worth more than any badge.
+The audit needs no API key or network access to a model, so it also runs on your own clone:
+
+```
+git clone https://github.com/matsubo/agent-skills && cd agent-skills
+just audit
+```
+
 ## Layout
 
 ```
