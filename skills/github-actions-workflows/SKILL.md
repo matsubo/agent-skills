@@ -1,13 +1,13 @@
 ---
 name: github-actions-workflows
 description: >-
-  Write or edit GitHub Actions workflow files using the action versions that are current
-  right now, looked up from the GitHub API instead of recalled. Use whenever creating or
-  changing anything under .github/workflows/, adding a CI or release job, or when a workflow
-  is failing because an action version is deprecated or a step no longer exists. Covers
-  choosing and pinning `uses:` refs, runner labels, and keeping them current with Dependabot.
-  For auditing an existing workflow's security — script injection, pull_request_target,
-  token scopes — use a dedicated Actions security skill instead.
+  Write or edit GitHub Actions workflow files using the action versions that are current right
+  now, looked up from the GitHub API rather than recalled — any version written from memory is
+  stale. Use when creating or changing a file under .github/workflows/, adding a CI, build or
+  release job, porting CI from another provider, or when a run fails because an action version
+  is deprecated or its inputs moved. Covers choosing `uses:` refs, runner labels, and
+  Dependabot upkeep. This skill is not a security reviewer: for script injection,
+  pull_request_target, fork permissions or GITHUB_TOKEN scopes, it does not apply.
 license: MIT
 compatibility: Requires the gh CLI (or curl and jq) and network access to api.github.com
 ---
