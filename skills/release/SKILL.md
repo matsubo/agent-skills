@@ -37,11 +37,35 @@ Progress:
 
 ## Step 2: Decide the version
 
-- If `package.json` has a `version` field, bump it according to `$ARGUMENTS`
-  (patch/minor/major, default patch). Edit it the way
-  `npm version <type> --no-git-tag-version` would.
-- If there is no version field (data or content repositories), use a date tag
-  `vYYYY.MM.DD`, adding a `-2` suffix for a second release on the same day.
+First look at how this project already versions itself. `git tag -l | sort -V | tail -5`
+settles the scheme: if the existing tags are semver, stay on semver even when the version
+field is hard to find, and never switch a repository to date tags because you did not spot
+its manifest.
+
+Then find the manifest that declares the version. `package.json` is only the most common
+one:
+
+| Project | File | Field |
+|---------|------|-------|
+| npm / bun | `package.json` | `.version` |
+| Claude Code plugin | `.claude-plugin/marketplace.json` | `.metadata.version` **and** `.plugins[].version` |
+| Rust | `Cargo.toml` | `version` under `[package]` |
+| Python | `pyproject.toml` | `version` under `[project]` |
+| Anything else | `VERSION`, `*.gemspec`, `version.rb` | grep for the current version string |
+
+Bump it according to `$ARGUMENTS` (patch/minor/major, default patch), the way
+`npm version <type> --no-git-tag-version` would.
+
+**A manifest may declare the version in more than one place, and they must move together.**
+A Claude Code marketplace holds one under `metadata` and one per plugin. Grep for the whole
+current version string rather than editing the first field you find:
+
+```bash
+grep -rn '"1\.0\.0"' .        # every field still on the old version
+```
+
+Only when no manifest declares a version at all — a data or content repository — use a date
+tag `vYYYY.MM.DD`, adding a `-2` suffix for a second release on the same day.
 
 ## Step 3: Generate release notes
 
@@ -49,9 +73,23 @@ Progress:
 git log --pretty=format:"%s" $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD
 ```
 
-Group the subjects by Conventional Commit type: feat → What's New, fix → Bug Fixes,
-refactor and perf → Improvements, docs → Documentation, chore → Maintenance. Rewrite each
-one as plain, user-facing prose, in the language the repository documents itself in.
+Group the subjects by Conventional Commit type:
+
+| Type | Section |
+|------|---------|
+| `feat` | What's New |
+| `fix` | Bug Fixes |
+| `refactor`, `perf` | Improvements |
+| `docs` | Documentation |
+| `chore`, `test`, `ci` | Maintenance |
+
+Rewrite each one as plain, user-facing prose, in the language the repository documents
+itself in.
+
+**Sort by what the change does for the reader, not by its prefix.** The table is a starting
+point, and `ci` is where it misleads most often: routine workflow upkeep is Maintenance, but
+a `ci:` commit that gives users a new guarantee about the project belongs in What's New. A
+commit with no conventional prefix still belongs in the notes — place it by reading it.
 
 ## Step 4: Commit and tag
 
