@@ -35,6 +35,13 @@ evals/
   run-trigger-eval.sh       # measures how reliably a description triggers
   fixture/<ecosystem>/      # throwaway project each eval query runs against
   <skill>/*_queries.json    # labelled prompts, split into train and validation sets
+scripts/
+  audit.sh                  # the safety gate; everything CI enforces
+  check-frontmatter.py      # spec conformance of one SKILL.md
+  check-hidden-chars.py     # characters a reviewer cannot see
+tests/
+  audit_test.sh             # proves each audit check still fires
+.github/workflows/audit.yml # runs the above on every push and pull request
 ```
 
 ## Adding a skill
@@ -66,9 +73,58 @@ and [best practices](https://agentskills.io/skill-creation/best-practices):
 Validate before committing:
 
 ```
-claude plugin validate . --strict
-claude plugin validate ./skills --strict
+just ci
 ```
+
+## Audit
+
+A skill is instructions that an agent executes on someone else's machine, and the only thing
+standing between a change and that machine is someone reading a diff. `scripts/audit.sh` is
+what makes that review enforceable. It is deterministic, needs no API key, and runs on every
+push and pull request via `.github/workflows/audit.yml`.
+
+```
+just audit      # the gate
+just test       # prove the gate still detects what it claims to
+just ci         # both, plus claude plugin validate
+```
+
+What it checks:
+
+| Check | Catches |
+|-------|---------|
+| `frontmatter-parse`, `name-*`, `description-*` | frontmatter that violates the spec |
+| `body-length` | a SKILL.md past the 500 line budget |
+| `marketplace-orphan`, `marketplace-missing` | `marketplace.json` and `skills/` disagreeing |
+| `dangerous-pattern` | `rm -rf`, `curl \| sh` and `curl \| python3`, force push, `sudo`, `chmod 777`, `--dangerously-skip-permissions`, `eval $(curl …)` |
+| `hidden-instruction` | HTML comments, zero-width characters, bidi overrides — text a model reads but a reviewer cannot see |
+| `secret-literal` | a credential shaped like an API key |
+| `script-not-executable` | a bundled script that would fail for whoever installs it |
+| `eval-json`, `eval-query-schema`, `eval-fixture` | eval sets that would silently score zero |
+
+The content checks cover every `*.md` and `*.sh` under `skills/`, not just `SKILL.md` — a
+`references/` file ships to installers and is read by the model just as the SKILL.md is.
+
+**`claude plugin validate --strict` is not sufficient on its own.** Measured against
+deliberately broken skills, it rejects a missing frontmatter block, unparseable YAML and a
+missing `description` — but it *accepts* a missing `name`, a `name` that violates the
+specification's charset, a `name` that disagrees with its directory, and a `description` of
+any length. `scripts/audit.sh` checks those itself; CI still runs `validate` as defence in
+depth.
+
+Two rules for changing the audit, both learned the hard way:
+
+- **Every check needs a fixture that violates exactly one rule.** `tests/audit_test.sh`
+  asserts on the *check id*, not just on a non-zero exit, so a case cannot pass because some
+  unrelated check happened to fire.
+- **Every pattern needs a near-miss that must stay silent.** `git push origin main
+  --follow-tags` and `curl … | jq` are legitimate and appear in the skills here; an earlier
+  pipe-to-shell pattern also missed `` `curl … | bash` `` written inside inline backticks,
+  because it required whitespace after the shell name. Both directions are tested.
+
+The workflow pins every action to a commit SHA rather than a tag, since a tag can be
+repointed by its owner without any diff here; Dependabot moves the SHA and its `# vX.Y.Z`
+comment together.
 
 ## Evals
 
@@ -97,6 +153,10 @@ assumed:
 
 Model behaviour is nondeterministic, so read the trigger rate rather than a single outcome.
 Keep `RUNS` at 3 or more before drawing any conclusion about a description.
+
+The evals are deliberately **not** part of CI: they need an API key and cost money per run,
+and a gate that is read as a rate over repeated runs is not a gate. Run them locally with
+`just eval <skill>` (add `validation` as a second argument for the validation set).
 
 ## Publishing
 

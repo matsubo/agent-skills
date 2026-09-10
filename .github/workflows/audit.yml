@@ -1,0 +1,84 @@
+# Deterministic safety gate for the skills published from this repository.
+#
+# Skills are instructions that an agent executes on someone else's machine, so the point of
+# this workflow is that nothing reaches a user without a human having approved it in a diff.
+# Everything here runs without an API key and without network access to a model.
+#
+# The LLM trigger evals under evals/ are deliberately NOT part of this workflow: they cost
+# money per run and are nondeterministic, so they are read as trigger rates over repeated
+# runs rather than as a pass/fail gate. Run them locally with evals/run-trigger-eval.sh.
+name: audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Read-only by default. No job here writes to the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions are pinned to a commit SHA rather than a tag: `@v7` is a moving tag that its
+      # owner can repoint at any commit, which would let a third party change what runs here
+      # without a diff in this repository. Dependabot updates these; the comment is what it
+      # reads to know which version a SHA stands for.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # gitleaks scans history, which needs more than the default shallow clone.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install --disable-pip-version-check pyyaml
+
+      # The real gate. Spec conformance, manifest consistency, unsafe-content patterns and
+      # eval well-formedness — all deterministic, no API key.
+      - name: Audit skills
+        run: ./scripts/audit.sh
+
+      # Proves the audit still detects what it claims to: every check is exercised against a
+      # fixture that violates exactly one rule. Without this, a check that silently stopped
+      # matching would look identical to a clean repository.
+      - name: Test the audit
+        run: ./tests/audit_test.sh
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      # Defence in depth, not the gate. Measured against deliberately broken skills,
+      # `--strict` accepts a missing `name`, a `name` that violates the specification's
+      # charset or disagrees with its directory, and a `description` of any length — which is
+      # exactly why scripts/audit.sh checks those itself. This step still catches a malformed
+      # marketplace manifest and unparseable frontmatter.
+      - name: claude plugin validate
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude plugin validate . --strict
+          claude plugin validate ./skills --strict
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # Free for public repositories; scanning a private repo or an organisation needs
+      # GITLEAKS_LICENSE. scripts/audit.sh carries a much narrower credential check so that a
+      # contributor gets the same signal locally without installing gitleaks.
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

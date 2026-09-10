@@ -1,0 +1,11 @@
+# Actions in .github/workflows/ are pinned to commit SHAs, which do not drift on their own.
+# Dependabot is what keeps them current: it reads the `# vX.Y.Z` comment beside each SHA to
+# know which version the pin stands for, and opens a PR that moves both together.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
