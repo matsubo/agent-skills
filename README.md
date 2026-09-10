@@ -93,9 +93,8 @@ assumed:
   as "bring the deps up to date", because the agent stops to work out which ecosystem is
   meant. Hence one single-ecosystem fixture per skill.
 
-Model behaviour is nondeterministic, so a single run tells you nothing: the same prompt
-triggered on one run and not the next during development. Keep `RUNS` at 3 or more and read
-the rate, not the individual outcome.
+Model behaviour is nondeterministic, so read the trigger rate rather than a single outcome.
+Keep `RUNS` at 3 or more before drawing any conclusion about a description.
 
 ## Publishing
 

@@ -10,9 +10,11 @@
 # A should_trigger query passes when its trigger rate is above THRESHOLD; a
 # should_not_trigger query passes when it is below. Results go to stdout as JSON.
 #
-# Do not add `set -o pipefail`: the jq | grep pipeline deliberately closes the
-# stream early (SIGPIPE) as soon as the skill is seen, which is what keeps a run cheap.
-set -euo pipefail
+# No `pipefail` here, deliberately. `grep -q` exits as soon as it sees the skill, which
+# closes the stream and lets `claude` stop early — that early exit is what keeps a run
+# cheap, but it also makes `claude` die of SIGPIPE. Under `pipefail` that non-zero status
+# becomes the pipeline's status, so every successful detection would be scored as a miss.
+set -eu
 
 QUERIES_FILE="${1:?Usage: $0 <queries.json> [skill-name]}"
 SKILL="${2:-npm-dependency-updates}"
