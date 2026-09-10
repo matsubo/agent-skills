@@ -1,5 +1,6 @@
 # agent-skills
 
+[![audit](https://github.com/matsubo/agent-skills/actions/workflows/audit.yml/badge.svg)](https://github.com/matsubo/agent-skills/actions/workflows/audit.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Personal [Agent Skills](https://agentskills.io/specification) for Claude Code,
