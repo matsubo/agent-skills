@@ -70,7 +70,7 @@ tests run against the stale gems baked into the image.
   `docker compose run --rm --user "$(id -u):$(id -g)" <service> …` when it happens.
 - **Always `bundle exec`.** Without it a binstub can load a different version than the one
   the lockfile pins.
-- **The Gemfile may pin Ruby itself** (`ruby "3.3.0"`, `.ruby-version`). A gem that requires
+- **The Gemfile may pin Ruby itself** (`ruby "4.0.6"`, `.ruby-version`). A gem that requires
   a newer Ruby fails to resolve. Either bump Ruby — including the Dockerfile base image —
   or hold that gem back.
 - **Update Bundler separately.** `bundle update --bundler` rewrites `BUNDLED WITH`; doing it
