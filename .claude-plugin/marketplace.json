@@ -1,0 +1,23 @@
+{
+  "name": "matsubo-agent-skills",
+  "owner": {
+    "name": "Yuki Matsukura"
+  },
+  "metadata": {
+    "description": "Yuki Matsukura's personal agent skills",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "matsubo",
+      "source": "./",
+      "version": "1.0.0",
+      "description": "Personal workflow skills: dependency updates and release automation. Skills are namespaced as /matsubo:<skill>.",
+      "strict": false,
+      "skills": [
+        "./skills/ncu",
+        "./skills/release"
+      ]
+    }
+  ]
+}
