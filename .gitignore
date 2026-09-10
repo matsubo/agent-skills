@@ -1,1 +1,7 @@
 .DS_Store
+
+# `npx skills add` run inside this repository installs these skills back into it.
+# Useful for testing the published skills against a real session; not source.
+.agents/
+.claude/skills/
+skills-lock.json
