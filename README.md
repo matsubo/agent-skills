@@ -20,6 +20,7 @@ Skills are namespaced under `matsubo`, so they are invoked as `/matsubo:<skill>`
 |-------|--------|-------------|
 | `npm-dependency-updates` | model-invoked, or `/matsubo:npm-dependency-updates` | Update npm/bun dependencies to latest with npm-check-updates, then fix the breaking changes major bumps introduce. |
 | `bundler-dependency-updates` | model-invoked, or `/matsubo:bundler-dependency-updates` | Update Ruby gems to latest with `bundle update`, then fix the breaking changes major bumps introduce. Handles Docker Compose projects. |
+| `github-actions-workflows` | model-invoked, or `/matsubo:github-actions-workflows` | Author `.github/workflows/` using action versions looked up from the API, never recalled. Bundles a version-lookup script. |
 | `release` | `/matsubo:release [patch\|minor\|major]` | Version bump → release notes → commit → tag → push (with approval) → GitHub Release. |
 
 ## Layout
@@ -29,6 +30,7 @@ Skills are namespaced under `matsubo`, so they are invoked as `/matsubo:<skill>`
   marketplace.json          # marketplace + plugin definition; "name": "matsubo" sets the namespace
 skills/
   <skill>/SKILL.md          # one directory per skill
+  <skill>/scripts/          # executables the skill runs (never loaded into context)
 evals/
   run-trigger-eval.sh       # measures how reliably a description triggers
   fixture/<ecosystem>/      # throwaway project each eval query runs against

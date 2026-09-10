@@ -1,0 +1,15 @@
+[
+  { "query": "GitHub Actions のワークフローを作って。push と PR で lint とテストが走るやつ", "should_trigger": true },
+  { "query": "add a CI workflow for this repo", "should_trigger": true },
+  { "query": "our ci.yml is ancient, can you bring it up to date", "should_trigger": true },
+  { "query": "the build fails with 'This request has been automatically failed because it uses a deprecated version of actions/upload-artifact'", "should_trigger": true },
+  { "query": "I need a job that builds a docker image and pushes it to ghcr on tag. we've never had one", "should_trigger": true },
+  { "query": "set up automated releases on git tag for this project", "should_trigger": true },
+
+  { "query": "review this workflow for security issues — is pull_request_target safe here?", "should_trigger": false },
+  { "query": "why is our CI so slow? the test job takes 20 minutes", "should_trigger": false },
+  { "query": "update the npm dependencies in this project", "should_trigger": false },
+  { "query": "cancel the currently running workflow on main", "should_trigger": false },
+  { "query": "write a Dockerfile for this node app", "should_trigger": false },
+  { "query": "GITHUB_TOKEN の権限が足りないと言われる。何を見ればいい？", "should_trigger": false }
+]

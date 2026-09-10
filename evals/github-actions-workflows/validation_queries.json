@@ -1,0 +1,11 @@
+[
+  { "query": "ワークフローに cache のステップを足して、依存のインストールを速くして", "should_trigger": true },
+  { "query": "can you add a matrix build across node 20 and 22 to our existing workflow", "should_trigger": true },
+  { "query": "we're moving CI from CircleCI to GitHub. port .circleci/config.yml over", "should_trigger": true },
+  { "query": "this action's `with:` block errors after I bumped it — unexpected input", "should_trigger": true },
+
+  { "query": "explain what concurrency groups do in GitHub Actions", "should_trigger": false },
+  { "query": "our gems are out of date, run bundle update", "should_trigger": false },
+  { "query": "create a GitHub issue template for bug reports", "should_trigger": false },
+  { "query": "what does the `permissions:` key default to for a fork PR?", "should_trigger": false }
+]
