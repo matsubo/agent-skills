@@ -10,10 +10,24 @@ Skills are namespaced under `matsubo`, so they are invoked as `/matsubo:<skill>`
 
 ## Install
 
+Through the Claude Code plugin marketplace:
+
 ```
 /plugin marketplace add matsubo/agent-skills
 /plugin install matsubo@matsubo-agent-skills
 ```
+
+Or with the [skills CLI](https://skills.sh/), which resolves this repository straight from
+GitHub and also installs into agents other than Claude Code:
+
+```
+npx skills add matsubo/agent-skills        # into the current project
+npx skills add matsubo/agent-skills -g     # into ~/.claude/skills, for every project
+```
+
+Without `-g` it installs project-locally, as `.agents/skills/` plus symlinks from
+`.claude/skills/` — easy to mistake for a global install when a skill then fails to load
+anywhere else.
 
 ## Staying up to date
 
@@ -95,7 +109,8 @@ reports; the full check list is under [Audit](#audit).
 **True of the skills here today**, and checkable in one `grep` each:
 
 - Only `release` pushes at all, and it stops and asks first — see Step 5 of
-  `skills/release/SKILL.md`. The dependency-update skills commit; they never push.
+  `skills/release/SKILL.md`. The dependency-update skills commit but never push, and
+  `github-actions-workflows` does neither.
 - The only network access from a bundled script is read-only `GET`s to `api.github.com`.
 
 **What none of that proves.** The audit is a deny list of known-bad patterns, not a proof of
@@ -137,7 +152,9 @@ scripts/
   check-hidden-chars.py     # characters a reviewer cannot see
 tests/
   audit_test.sh             # proves each audit check still fires
+justfile                    # audit / test / validate / eval / ci
 .github/workflows/audit.yml # runs the above on every push and pull request
+.github/dependabot.yml      # moves the SHAs that workflow pins
 ```
 
 ## Adding a skill
@@ -228,8 +245,10 @@ comment together.
 stays quiet on near-misses that belong to a sibling skill.
 
 ```
-./evals/run-trigger-eval.sh evals/npm-dependency-updates/train_queries.json npm-dependency-updates
-./evals/run-trigger-eval.sh evals/bundler-dependency-updates/train_queries.json bundler-dependency-updates
+just eval npm-dependency-updates
+just eval bundler-dependency-updates
+just eval github-actions-workflows
+just eval github-actions-workflows validation
 ```
 
 Tune the description against the train set only, then check the validation set to confirm the
@@ -237,8 +256,10 @@ change generalized rather than overfitting. `RUNS`, `THRESHOLD`, `TIMEOUT` and `
 environment variables.
 
 Each query runs against a fresh copy of `evals/fixture/<ecosystem>/`, chosen from the first
-segment of the skill name, so `npm-dependency-updates` runs against `evals/fixture/npm`. Pass
-a third argument to override it. Two constraints on that fixture were measured rather than
+segment of the skill name: `npm-dependency-updates` runs against `evals/fixture/npm`, and
+`github-actions-workflows` against `evals/fixture/github`, whose `.github/workflows/ci.yml`
+is deliberately several majors out of date. Pass a third argument to
+`evals/run-trigger-eval.sh` to override the choice. Two constraints on that fixture were measured rather than
 assumed:
 
 - An empty directory scores 0 for every query. The agent spends the run establishing that
@@ -256,18 +277,21 @@ and a gate that is read as a rate over repeated runs is not a gate. Run them loc
 
 ## Publishing
 
-[skills.sh](https://skills.sh/) indexes this format and resolves skills straight from GitHub,
-so anyone can install from this repository without the Claude Code marketplace:
+[skills.sh](https://skills.sh/) indexes this format straight from GitHub, so the
+`npx skills add` route under [Install](#install) needs no submission step. The leaderboard is
+built from install telemetry rather than a form, so a repository appears at
+`https://skills.sh/<owner>/<repo>` once it has been installed through the CLI.
+
+Run this after any frontmatter change:
 
 ```
-npx skills add matsubo/agent-skills
 npx skills add matsubo/agent-skills --list    # what the registry sees
 ```
 
-The leaderboard is built from install telemetry rather than a submission form, so a repository
-appears at `https://skills.sh/<owner>/<repo>` once it has been installed through the CLI.
-Run `--list` after any frontmatter change: the registry parses YAML more strictly than
-`claude plugin validate` does, and silently skips a skill whose frontmatter fails to parse.
+The registry parses YAML more strictly than `claude plugin validate` does and silently skips
+a skill whose frontmatter fails to parse. This repository shipped a `release` skill that was
+invisible to the registry for exactly that reason — an unquoted `: ` inside the description
+made it a nested mapping — while `validate` reported no problem.
 
 ## License
 
