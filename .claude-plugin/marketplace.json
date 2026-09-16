@@ -13,7 +13,7 @@
       "name": "matsubo",
       "source": "./",
       "version": "1.1.0",
-      "description": "Personal workflow skills: dependency updates for npm and Bundler, GitHub Actions authoring, and release automation. Skills are namespaced as /matsubo:<skill>.",
+      "description": "Personal workflow skills: dependency updates for npm and Bundler, GitHub Actions authoring, issue/PR relationship trailers on commit messages, and release automation. Skills are namespaced as /matsubo:<skill>.",
       "author": {
         "name": "Yuki Matsukura"
       },
@@ -34,13 +34,19 @@
         "git",
         "github-actions",
         "ci",
-        "workflows"
+        "workflows",
+        "commit",
+        "commit-message",
+        "git-trailers",
+        "issue",
+        "pull-request"
       ],
       "strict": false,
       "skills": [
         "./skills/npm-dependency-updates",
         "./skills/bundler-dependency-updates",
         "./skills/github-actions-workflows",
+        "./skills/commit-issue-trailers",
         "./skills/release"
       ]
     }

@@ -85,6 +85,7 @@ keeps plugins updating while Claude Code itself does not.
 | `npm-dependency-updates` | model-invoked, or `/matsubo:npm-dependency-updates` | Update npm/bun dependencies to latest with npm-check-updates, then fix the breaking changes major bumps introduce. |
 | `bundler-dependency-updates` | model-invoked, or `/matsubo:bundler-dependency-updates` | Update Ruby gems to latest with `bundle update`, then fix the breaking changes major bumps introduce. Handles Docker Compose projects. |
 | `github-actions-workflows` | model-invoked, or `/matsubo:github-actions-workflows` | Author `.github/workflows/` using action versions looked up from the API, never recalled. Bundles a version-lookup script. |
+| `commit-issue-trailers` | model-invoked, or `/matsubo:commit-issue-trailers` | Put the issue or PR a commit belongs to in the message, as a `ref:` / `related:` / `part-of:` trailer. |
 | `release` | `/matsubo:release [patch\|minor\|major]` | Version bump → release notes → commit → tag → push (with approval) → GitHub Release. |
 
 ## Safety
