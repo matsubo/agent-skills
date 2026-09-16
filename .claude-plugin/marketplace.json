@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Yuki Matsukura's personal agent skills",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "matsubo",
       "source": "./",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Personal workflow skills: dependency updates for npm and Bundler, GitHub Actions authoring, issue/PR relationship trailers on commit messages, and release automation. Skills are namespaced as /matsubo:<skill>.",
       "author": {
         "name": "Yuki Matsukura"
